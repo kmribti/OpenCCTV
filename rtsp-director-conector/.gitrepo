@@ -4,8 +4,8 @@
 ; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
 ;
 [subrepo]
-	remote = git@github.com:ait-vgl/linlin-vms-connector.git
+	remote = git@github.com:ait-vgl/rtsp-direct-connector.git
 	branch = develop
-	commit = 7e4e9411b672b6171a4623a2d31049a42b65aa72
-	parent = 5e1f4f757e173735c6f9b579e393feee8f70131d
+	commit = 70b191dd1bd5760a40d6f44ff6bba7fa6d906b0e
+	parent = bf622f69ddc14c5239a4234f00f5ef54385908f9
 	cmdver = 0.3.0
