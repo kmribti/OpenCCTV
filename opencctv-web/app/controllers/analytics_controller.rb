@@ -54,6 +54,11 @@ class AnalyticsController < ApplicationController
         input_streams.each do |in_str|
           @analytic.analytic_input_streams.push(in_str)
         end
+
+        analytic_configs = validation_result[:analytic_configs]
+        analytic_configs.each do |in_analytic_config|
+          @analytic.analytic_configs.push(in_analytic_config)
+        end
       end
 
     else

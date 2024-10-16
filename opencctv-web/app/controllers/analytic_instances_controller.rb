@@ -2,9 +2,11 @@ class AnalyticInstancesController < ApplicationController
 
   before_action :authenticate_user!
 
-  before_action :set_analytic_instance, only: [:show, :edit, :update, :destroy]
+  before_action :set_analytic_instance, only: [:show, :edit, :update, :destroy, :startAnalytic, :stopAnalytic]
   before_action :setGroupList, only: [:index, :new]
   respond_to :html
+
+  include OpenCctvServersHelper
 
   # GET /analytic_instances
   def index
@@ -22,6 +24,7 @@ class AnalyticInstancesController < ApplicationController
 
   # GET /analytic_instances/1
   def show
+    @analytic_configs = AnalyticInstanceConfig.where(analytic_instance_id: @analytic_instance.id)
     respond_with(@analytic_instance)
   end
 
@@ -65,7 +68,20 @@ class AnalyticInstancesController < ApplicationController
                                                 :notification_id => params[:analytic_instance][:notification_id],
                                                 :user_id => current_user.id)
       @analytic_instance.save
+
       respond_with(@analytic_instance)
+    end
+
+
+    #save  first analytic configs
+    @analytic_configs = Analytic.joins(:analytic_configs).where(analytics: {id: @analytic_instance.analytic_id}).select('analytic_configs.name, analytic_configs.fileName, analytic_configs.data')
+    analytic_config_array = Array.new
+    @analytic_configs.each do |analytic_config|
+      analytic_instance_config_db = AnalyticInstanceConfig.new
+      analytic_instance_config_db.name = analytic_config.name
+      analytic_instance_config_db.fileName = analytic_config.fileName
+      analytic_instance_config_db.data = analytic_config.data
+      @analytic_instance.analytic_instance_configs.push(analytic_instance_config_db)
     end
 
   end
@@ -87,6 +103,39 @@ class AnalyticInstancesController < ApplicationController
     @analytic_instance.destroy
     respond_with(@analytic_instance)
   end
+
+
+  def startAnalytic
+    @openCctvServer = OpenCctvServer.first()
+    @openCctvServer.port = 4445
+    msg_reply = sendToServerWithData(@openCctvServer,"StartAnalytic",@analytic_instance.id, @analytic_instance.analytic_server_id)
+
+    if(msg_reply[:type].eql? 'Error')
+      flash[:error] = "#{msg_reply[:content]}"
+    else
+      flash[:notice] = "Start request was sent"
+      @analytic_instance.update(status: '1') # 0 = stop
+    end
+
+    redirect_to :back
+  end
+
+
+  def stopAnalytic
+    @openCctvServer = OpenCctvServer.first()
+    @openCctvServer.port = 4445
+    msg_reply = sendToServerWithData(@openCctvServer,"StopAnalytic",@analytic_instance.id, @analytic_instance.analytic_server_id)
+
+    if(msg_reply[:type].eql? 'Error')
+      flash[:error] = "#{msg_reply[:content]}"
+    else
+      flash[:notice] = "Stop request was sent"
+      @analytic_instance.update(status: '1') # 0 = stop
+    end
+
+    redirect_to :back
+  end
+
 
   private
   # Use callbacks to share common setup or constraints between actions.
@@ -117,6 +166,6 @@ class AnalyticInstancesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def analytic_instance_params
-    params.require(:analytic_instance).permit(:name, :description, :analytic_id, :notification_id, :group_user_id)
+    params.require(:analytic_instance).permit(:name, :description, :analytic_id, :notification_id, :group_user_id, :analytic_server_id)
   end
 end

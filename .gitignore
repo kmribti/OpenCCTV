@@ -1,0 +1,8 @@
+**/.DS_Store
+**/*.log
+**/*.o
+**/.cproject
+**/.project
+**/*.d
+**/.idea
+**/*.mk

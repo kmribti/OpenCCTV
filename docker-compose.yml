@@ -1,0 +1,81 @@
+version: '2'
+services:
+  web:
+    image: opencctv-web
+    links:
+      - mysql:db
+    working_dir: /myapp
+   # command: bundle install
+   # command: rake db:create
+   # command: rake db:migrate
+   # command: rake db:seed
+    #command: mkdir -p /usr/local/opencctv/analytics
+    #command: mkdir -p /usr/local/opencctv/vms_connectors
+    #mem_limit: 134217728
+    mem_limit: 268435456
+    volumes:
+      - /usr/local/opencctv/analytics:/usr/local/opencctv/analytics
+      - /usr/local/opencctv/vms_connectors:/usr/local/opencctv/vms_connectors
+      - ~/workspace/OpenCCTV/opencctv-web:/myapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    container_name: web
+    command: /bin/bash
+    tty: true
+    stdin_open: true
+  
+  opencctv:
+    image: opencctv
+    #links:
+    #  - analytic
+    #  - mysql:db
+    working_dir: /usr/local/opencctv/opencctv-starter
+    mem_limit: 67108864
+    volumes:
+      - /usr/local/opencctv/vms_connectors:/usr/local/opencctv/vms_connectors
+      - ~/workspace/OpenCCTV/opencctv-server/opencctv-starter/Release:/usr/local/opencctv/opencctv-starter
+      - ~/workspace/OpenCCTV/opencctv-server/opencctv-server/Release:/usr/local/opencctv/opencctv-server
+    depends_on:
+      - mysql
+      - analytic
+    container_name: opencctv
+    network_mode: "host"
+    command: /bin/bash
+    tty: true
+    stdin_open: true
+
+    
+  analytic:
+    image: opencctv
+    working_dir: /usr/local/opencctv/analytic-starter
+    ports:
+      - "5555:5555"
+    depends_on:
+      - mysql
+    mem_limit: 67108864
+    volumes:
+      - /usr/local/opencctv/analytics:/usr/local/opencctv/analytics
+      - ~/workspace/OpenCCTV/analytic-server/analytic-starter/Release:/usr/local/opencctv/analytic-starter
+      - ~/workspace/OpenCCTV/analytic-server/analytic-server/Release:/usr/local/opencctv/analytic-server
+    container_name: analytic
+    network_mode: "host"
+    command: /bin/bash
+    tty: true 
+    stdin_open: true
+
+  mysql:
+    image: opencctv:mysql
+    mem_limit: 268435456
+    volumes:
+      - /var/lib/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+  #  command: sh -c 'service mysql restart'
+  #  command: sh -c 'exec mysql -hlocalhost -uroot -p1234  < /tmp/opencctv_results_db.sql'
+  #  volumes:
+  #    - /home/nhamphu/Workspaces/docker-compose/opecctv/opencctv_results_db.sql:/tmp/opencctv_results_db.sql
+    container_name: mysql

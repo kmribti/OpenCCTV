@@ -1,5 +1,16 @@
 Rails.application.routes.draw do
 
+  resources :analytic_servers
+
+  resources :analytic_instance_streams do
+    resources :analytic_instance_stream_configs do
+    end
+  end
+
+resources :analytic_instances do
+  resources :analytic_instance_configs do
+  end
+end
   get 'test/createTest', to: "test#createTest"
   get 'test/clearTest'
 
@@ -93,6 +104,10 @@ Rails.application.routes.draw do
   resources :analytics do
     resources :analytic_input_streams
   end
+
+
+  get '/analytic_instance/:id/start', to: "analytic_instances#startAnalytic", as: 'start_analytic_instance'
+  get '/analytic_instance/:id/stop', to: "analytic_instances#stopAnalytic", as: 'stop_analytic_instance'
 
   resources :analytic_instances do
     resources :analytic_instance_streams

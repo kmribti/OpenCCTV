@@ -6,7 +6,7 @@ namespace util {
 Config* Config::_pConfig = NULL;
 
 Config::Config() {
-	std::string sConfigFilename = "./opencctv-server_starter.config";
+	std::string sConfigFilename = "./opencctv-server-starter.config";
 	std::ifstream ifstrConfig(sConfigFilename.c_str());
 	if (!ifstrConfig) {
 		throw opencctv::Exception("Cannot open OpenCCTV Server starter configuration file.");

@@ -5,6 +5,10 @@ namespace opencctv {
 namespace util {
 namespace log {
 
+// TODO: Implement log level from config file
+// info, warn, debug => dev
+// error => deployment
+
 ColorLogger::ColorLogger() {
 }
 
@@ -23,7 +27,7 @@ void ColorLogger::warn(const std::string& sMessage)
 void ColorLogger::info(const std::string& sMessage)
 {
 	boost::mutex::scoped_lock lock(_mutex);
-	std::cerr << "Info: " << "\033[34m" << sMessage << "\033[0m" << std::endl;
+	std::cerr << "Info: " << "\033[32m" << sMessage << "\033[0m" << std::endl;
 }
 
 void ColorLogger::debug(const std::string& sMessage)
